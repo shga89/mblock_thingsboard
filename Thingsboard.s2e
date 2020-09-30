@@ -1,0 +1,168 @@
+{	"extensionName": "Thingsboard IoT Platform 확장 블럭",
+	"description": "Thinsboard IoT Platform 확장 블럭입니다. 이 확장 블럭에 필요한 ArduinoHttpClient, ArduinoJson, PubSubClient, WiFiEsp 라이브러리를 포함하고 있습니다. 이 확장 블럭 또한 GPL 3.0을 따릅니다.",
+	"version": "0.2",
+	"author": "Gaduino",
+	"homepage": "http://www.github.com/shga89",
+	"sort":0,
+	"javascriptURL":"js/Thingsboard.js",
+    "firmware":"1.0",
+    "extensionPort":0,
+	"blockSpecs": [
+		[
+			"w",
+			"Initialize WiFi: SSID= %s , Password= %s , RX= %d.pin , TX= %d.pin",
+			"WiFiInit",
+			"",
+			"",
+			"",
+			"",
+			{
+				"setup":"
+\/********* WiFi Setup *********\/
+Serial.begin(115200);
+Serial.println(\"Init WiFi...\");
+Serial_WiFi.listen();
+Serial_WiFi.begin(9600);  // ESP 모듈의 Serial을 초기화
+   
+WiFi.init(&Serial_WiFi);  // ESP 모듈을 초기화
+  
+// WiFi 모듈이 설치되었는지 확인
+if (WiFi.status() == WL_NO_SHIELD) {
+    Serial.println(\"WiFi is not found.\");
+    while (true); //무한 반복 (=> 더 이상 진행하지 않고 멈춤)
+}
+\/******************************\/\n",
+				"inc":"#include \"WiFiEsp.h\"\n",
+				"def":"
+\/********* WiFi Define ********\/
+#define WIFI_AP {0}
+#define WIFI_PASSWORD {1}
+SoftwareSerial Serial_WiFi({2}, {3});
+int status = WL_IDLE_STATUS;
+String contents;
+\/******************************\/\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Connect to WiFi when it is not connected",
+			"WiFiConnect",
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"
+\/********* WiFi Connect *******\/
+Serial_WiFi.listen();
+while (status != WL_CONNECTED) {
+    Serial.println(\"Attempting to connect to WPA SSID: \" + String(WIFI_AP)); //다음 SSID에 접속 시도중:
+	status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+}
+\/******************************\/\n",
+				"loop":""
+			}
+		],
+/*		[
+			"w",
+			"Listen to WiFi",
+			"WiFiListen",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"Serial_WiFi.listen();\n",
+				"loop":""
+			}
+		],*/
+		[
+			"w",
+			"Set Thingsboard Platform: Server= %s, Port= %s, TOKEN= %s",
+			"TBInit",
+			"",
+			"",
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"
+\/***** Thingsboard Define *****\/
+#define SERVER {0}
+#define PORT {1}
+#define TOKEN {2}
+WiFiEspClient espClient;
+
+bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\")
+{
+  // 전송된 매개변수의 개수를 확인
+  if (name3 == \"0\" && value3 == \"0\") {
+    if (name2 == \"0\" && value2 == \"0\") {
+      if (name1 == \"0\" && value1 == \"0\") {
+        Serial.println(\"[WIFI-TB] No args input!\");
+        return false;
+      } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\"}\"; } // 1개 전송
+    } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\"}\"; } // 2개 전송
+  } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\", \\\"\" + name3 + \"\\\":\\\"\" + value3 + \"\\\"}\";  } // 3개 전송
+
+  // WiFi 연결여부 재확인
+  Serial_WiFi.listen();
+  if (!espClient.connected()) {
+Serial.println(\"[WIFI-TB] Try to reconnect to server...\");
+espClient.stop();
+espClient.connect(SERVER, PORT); 
+} // WiFi 쟈접속 시도 완료
+if (!espClient.connected()) { // 재시도에도 접속이 안 되면 전송실패 반환
+Serial.println(\"[WIFI-TB] Fail to reconnect to server! Sending data is failed!\");
+return false; // 전송실패시 false 반환
+} // WiFi 확인 완료
+// HTTP 요청을 전달
+espClient.println(\"POST /api/v1/\" + String(TOKEN) + \"/telemetry HTTP/1.1\");
+espClient.println(\"Host: \" + String(SERVER) + \":\" + String(PORT) + \"\");
+espClient.println(\"Content-Type: application/json\");
+espClient.println(\"Connection: keep-alive\");
+espClient.println(\"Content-Length: \" + String(contents.length()) + \"\");
+espClient.println();
+espClient.println(contents);
+Serial.println(contents);
+Serial.println(\"[WIFI-TB] Sending has been completed!\"); //전송 성공!
+return true;
+}
+
+\/******************************\/\n",
+				"work":"",
+				"loop":""
+			}
+		],
+		[
+			"w",
+			"Send data NAME1= %s , VALUE1= %s , NAME2= %s , VALUE2= %s , NAME3= %s , VALUE3= %s",
+			"TBSend3",
+			"",
+			"",
+			"",
+			"",
+			"",
+			"",
+			{
+				"setup":"",
+				"inc":"",
+				"def":"",
+				"work":"toTB(String({0}), String({1}), String({2}), String({3}), String({4}), String({5}));\n",
+				"loop":""
+			}
+		]
+	],
+	"menus": {
+		"pin":[2,3,4,5,6,7,8,9,10,11,12,13]
+	},
+	"translators":{
+		"ko":{
+			"Initialize WiFi: SSID= %s , Password= %s , RX= %d.pin , TX= %d.pin":"WiFi 초기화 : SSID= %s , 비밀번호= %s , RX= %d.pin , TX= %d.pin",
+			"Connect to WiFi when it is not connected":"WiFi 접속이 안 되어 있다면 접속 시도",
+			"Set Thingsboard Platform: Server= %s, Port= %s, TOKEN= %s":"Thingsboard 플랫폼 설정: Server= %s, Port= %s, TOKEN= %s",
+			"Send data NAME1= %s , VALUE1= %s , NAME2= %s , VALUE2= %s , NAME3= %s , VALUE3= %s":"데이터 전송: 이름1= %s , 값1= %s , 이름2= %s , 값2= %s , 이름3= %s , 값3= %s"
+		}		
+	}
+}
