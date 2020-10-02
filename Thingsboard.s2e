@@ -24,13 +24,7 @@ Serial.println(\"Init WiFi...\");
 Serial_WiFi.listen();
 Serial_WiFi.begin(9600);  // ESP 모듈의 Serial을 초기화
    
-WiFi.init(&Serial_WiFi);  // ESP 모듈을 초기화
-  
-// WiFi 모듈이 설치되었는지 확인
-if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println(\"WiFi is not found.\");
-    while (true); //무한 반복 (=> 더 이상 진행하지 않고 멈춤)
-}
+Init_WiFi();
 \/******************************\/\n",
 				"inc":"#include \"WiFiEsp.h\"\n",
 				"def":"
@@ -40,6 +34,16 @@ if (WiFi.status() == WL_NO_SHIELD) {
 SoftwareSerial Serial_WiFi({2}, {3});
 int status = WL_IDLE_STATUS;
 String contents;
+    
+void Init_WiFi() {
+WiFi.init(&Serial_WiFi);  // ESP 모듈을 초기화
+       
+// WiFi 모듈이 설치되었는지 확인
+if (WiFi.status() == WL_NO_SHIELD) {
+Serial.println(\"WiFi is not found.\");
+while (true); //무한 반복 (=> 더 이상 진행하지 않고 멈춤)
+} // 모듈확인 끝
+} // Init_WiFi 함수 끝
 \/******************************\/\n",
 				"work":"",
 				"loop":""
@@ -94,8 +98,7 @@ while (status != WL_CONNECTED) {
 #define TOKEN {2}
 WiFiEspClient espClient;
 
-bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\")
-{
+bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\") {
   // 전송된 매개변수의 개수를 확인
   if (name3 == \"0\" && value3 == \"0\") {
     if (name2 == \"0\" && value2 == \"0\") {
@@ -110,11 +113,14 @@ bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", St
   Serial_WiFi.listen();
   if (!espClient.connected()) {
 Serial.println(\"[WIFI-TB] Try to reconnect to server...\");
-espClient.stop();
-espClient.connect(SERVER, PORT); 
-} // WiFi 쟈접속 시도 완료
+espClient.stop();  
+espClient.connect(SERVER, PORT);    
+} // WiFi 재접속 시도 완료
 if (!espClient.connected()) { // 재시도에도 접속이 안 되면 전송실패 반환
 Serial.println(\"[WIFI-TB] Fail to reconnect to server! Sending data is failed!\");
+Init_WiFi();
+Serial.println(\"Attempting to connect to WPA SSID: \" + String(WIFI_AP)); //다음 SSID에 다시 접속 시도
+status = WiFi.begin(WIFI_AP, WIFI_PASSWORD); // 재접속
 return false; // 전송실패시 false 반환
 } // WiFi 확인 완료
 // HTTP 요청을 전달
