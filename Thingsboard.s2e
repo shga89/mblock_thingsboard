@@ -62,8 +62,8 @@ while (true); //무한 반복 (=> 더 이상 진행하지 않고 멈춤)
 \/********* WiFi Connect *******\/
 Serial_WiFi.listen();
 while (status != WL_CONNECTED) {
-    Serial.println(\"Attempting to connect to WPA SSID: \" + String(WIFI_AP)); //다음 SSID에 접속 시도중:
-	status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
+Serial.println(\"Attempting to connect to WPA SSID: \" + String(WIFI_AP)); //다음 SSID에 접속 시도중:
+status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
 }
 \/******************************\/\n",
 				"loop":""
@@ -99,19 +99,19 @@ while (status != WL_CONNECTED) {
 WiFiEspClient espClient;
 
 bool toTB(String name1, String value1, String name2=\"\", String value2=\"\", String name3=\"\", String value3=\"\") {
-  // 전송된 매개변수의 개수를 확인
-  if (name3 == \"0\" && value3 == \"0\") {
-    if (name2 == \"0\" && value2 == \"0\") {
-      if (name1 == \"0\" && value1 == \"0\") {
-        Serial.println(\"[WIFI-TB] No args input!\");
-        return false;
-      } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\"}\"; } // 1개 전송
-    } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\"}\"; } // 2개 전송
-  } else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\", \\\"\" + name3 + \"\\\":\\\"\" + value3 + \"\\\"}\";  } // 3개 전송
+// 전송된 매개변수의 개수를 확인
+if (name3 == \"0\" && value3 == \"0\") {
+if (name2 == \"0\" && value2 == \"0\") {
+if (name1 == \"0\" && value1 == \"0\") {
+Serial.println(\"[WIFI-TB] No args input!\");
+return false;
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\"}\"; } // 1개 전송
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\"}\"; } // 2개 전송
+} else {contents = \"{\\\"\" + name1 + \"\\\":\\\"\" + value1 + \"\\\", \\\"\" + name2 + \"\\\":\\\"\" + value2 + \"\\\", \\\"\" + name3 + \"\\\":\\\"\" + value3 + \"\\\"}\";  } // 3개 전송
 
-  // WiFi 연결여부 재확인
-  Serial_WiFi.listen();
-  if (!espClient.connected()) {
+// WiFi 연결여부 재확인
+Serial_WiFi.listen();
+if (!espClient.connected()) {
 Serial.println(\"[WIFI-TB] Try to reconnect to server...\");
 espClient.stop();  
 espClient.connect(SERVER, PORT);    
