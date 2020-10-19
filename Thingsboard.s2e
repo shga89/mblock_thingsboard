@@ -64,7 +64,7 @@ Serial_WiFi.listen();
 while (status != WL_CONNECTED) {
 Serial.println(\"Attempting to connect to WPA SSID: \" + String(WIFI_AP)); //다음 SSID에 접속 시도중:
 status = WiFi.begin(WIFI_AP, WIFI_PASSWORD);
-}
+} // WiFi 접속 while 끝
 \/******************************\/\n",
 				"loop":""
 			}
