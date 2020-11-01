@@ -1,7 +1,7 @@
 {	"extensionName": "Thingsboard IoT Platform 확장 블럭",
 	"description": "Thinsboard IoT Platform 확장 블럭입니다. 이 확장 블럭에 필요한 ArduinoHttpClient, ArduinoJson, PubSubClient, WiFiEsp 라이브러리를 포함하고 있습니다. 이 확장 블럭 또한 GPL 3.0을 따릅니다.",
 	"version": "0.2",
-	"author": "Gaduino",
+	"author": "Gaduino ",
 	"homepage": "http://www.github.com/shga89",
 	"sort":0,
 	"javascriptURL":"js/Thingsboard.js",
